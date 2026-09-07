@@ -38,71 +38,53 @@
             background-position: 0 0, 40px 60px, 130px 270px;
         }
 
-        /* Envelope Container */
-        .envelope-wrapper {
-            position: relative;
-            cursor: pointer;
-            transition: transform 0.3s ease;
-        }
-
-        .envelope-wrapper:hover {
-            transform: scale(1.05);
-        }
-
-        .envelope {
-            position: relative;
-            width: 300px;
-            height: 200px;
-            background: #2e3b4e;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            border-radius: 0 0 10px 10px;
-        }
-
-        .envelope::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            width: 0;
-            height: 0;
-            border-left: 150px solid transparent;
-            border-right: 150px solid transparent;
-            border-top: 100px solid #3b4b61;
-            transform-origin: top;
-            transition: transform 0.4s ease 0.2s;
-            z-index: 3;
-        }
-
-        .envelope-text {
-            color: var(--text-main);
-            font-size: 1.2rem;
-            letter-spacing: 2px;
-            z-index: 2;
+        /* Simplified Interactive Invitation Box */
+        .click-box {
+            background: var(--card-bg);
+            border: 2px dashed rgba(236, 72, 153, 0.4);
+            padding: 40px 30px;
+            border-radius: 20px;
             text-align: center;
+            cursor: pointer;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            transition: transform 0.3s ease, border-color 0.3s ease;
+            max-width: 320px;
+            width: 100%;
         }
 
-        .heart-seal {
-            position: absolute;
-            font-size: 2rem;
-            color: var(--accent);
-            z-index: 4;
-            top: 40%;
-            transition: transform 0.3s ease;
+        .click-box:hover {
+            transform: scale(1.03);
+            border-color: var(--accent);
         }
 
-        /* Open State Animations */
-        .envelope-wrapper.open .envelope::before {
-            transform: rotateX(180deg);
-            z-index: 1;
+        .pulsing-heart {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            animation: pulse 1.5s infinite;
+            display: inline-block;
         }
 
-        .envelope-wrapper.open .heart-seal {
-            transform: scale(0);
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+            100% { transform: scale(1); }
         }
 
-        /* Letter Styling */
+        .click-box h2 {
+            font-size: 1.4rem;
+            color: var(--text-main);
+            letter-spacing: 1px;
+            font-weight: normal;
+        }
+
+        .click-box p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-top: 10px;
+            font-style: italic;
+        }
+
+        /* Letter Container */
         .letter-container {
             display: none;
             max-width: 650px;
@@ -112,15 +94,6 @@
             border-radius: 15px;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
             border: 1px solid rgba(236, 72, 153, 0.2);
-            opacity: 0;
-            transform: translateY(50px);
-            transition: opacity 0.8s ease, transform 0.8s ease;
-        }
-
-        .letter-container.show {
-            display: block;
-            opacity: 1;
-            transform: translateY(0);
         }
 
         h1 {
@@ -131,7 +104,7 @@
             padding-bottom: 10px;
         }
 
-        p {
+        .letter-container p {
             font-size: 1.1rem;
             line-height: 1.8;
             margin-bottom: 20px;
@@ -149,6 +122,8 @@
             gap: 20px;
             justify-content: center;
             margin-top: 35px;
+            position: relative;
+            min-height: 60px;
         }
 
         .btn {
@@ -157,7 +132,7 @@
             border: none;
             border-radius: 30px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
             font-weight: bold;
         }
 
@@ -165,6 +140,7 @@
             background-color: var(--accent);
             color: white;
             box-shadow: 0 4px 15px rgba(236, 72, 153, 0.4);
+            z-index: 5;
         }
 
         .btn-yes:hover {
@@ -175,13 +151,15 @@
         .btn-no {
             background-color: #374151;
             color: var(--text-muted);
-            position: relative;
+            z-index: 5;
+            transition: left 0.1s ease, top 0.1s ease;
         }
 
         /* Success Screen */
         .success-screen {
             display: none;
             text-align: center;
+            padding: 20px 0;
         }
 
         .success-screen h2 {
@@ -190,46 +168,50 @@
             margin-bottom: 15px;
         }
 
-        /* Responsive Settings */
+        /* Mobile Settings */
         @media (max-width: 480px) {
             .letter-container {
-                padding: 20px;
+                padding: 25px 20px;
             }
-            p {
+            .letter-container p {
                 font-size: 1rem;
             }
             .buttons {
                 flex-direction: column;
+                align-items: center;
+                gap: 15px;
+            }
+            .btn {
+                width: 100%;
+                max-width: 200px;
             }
         }
     </style>
 </head>
 <body>
 
-    <!-- Background Music (Hidden) -->
-    <!-- Replace the URL inside src="" with your preferred song link if needed -->
-    <audio id="bgMusic" loop>
+    <!-- Background Music Player -->
+    <audio id="bgMusic" loop preload="auto">
         <source src="https://soundhelix.com" type="audio/mpeg">
     </audio>
 
-    <!-- Step 1: The Interactive Envelope -->
-    <div class="envelope-wrapper" id="envelopeWrapper" onclick="openLetter()">
-        <div class="envelope">
-            <div class="envelope-text">Click to Open</div>
-            <div class="heart-seal">❤️</div>
-        </div>
+    <!-- Step 1: Click Box (Replaced the buggy envelope layout) -->
+    <div class="click-box" id="startBox" onclick="openLetter()" ontouchstart="openLetter()">
+        <div class="pulsing-heart">❤️</div>
+        <h2>A Message For You</h2>
+        <p>Click anywhere to open</p>
     </div>
 
-    <!-- Step 2: The Poetic Proposal Letter -->
+    <!-- Step 2: The Letter -->
     <div class="letter-container" id="letterContainer">
         <div id="proposalContent">
-            <h1>My Dearest Anshika,</h1>
+            <h1>My Dearest [Crush's Name],</h1>
             
             <p>For four years, my heart has kept a quiet rhythm, beating to the silent melody of my love for you. Today, I am finally letting that melody find its voice. I am stripping away the safety of silence because my feelings for you have grown too vast, too beautiful, to be contained any longer.</p>
             
-            <p>When you first walked into my life thirty-eight months ago, I had no idea that you were the turning point of my entire story. I still remember the nights we spent talking about our futures, diving deep into conversations about <span class="highlight">IIT and JEE prep</span>. It was your passion, your drive, and the way your eyes lit up during those talks that truly inspired me. You didn't just share a dream with me; you ignited a spark that pushed me forward. Every long night of study and every difficult problem I faced was fueled by the thought of building a future worthy of you.</p>
+            <p>When you first walked into my life forty-eight months ago, I had no idea that you were the turning point of my entire story. I still remember the nights we spent talking about our futures, diving deep into conversations about <span class="highlight">IIT and JEE prep</span>. It was your passion, your drive, and the way your eyes lit up during those talks that truly inspired me. You didn't just share a dream with me; you ignited a spark that pushed me forward. Every long night of study and every difficult problem I faced was fueled by the thought of building a future worthy of you.</p>
             
-            <p>Over these past 1,156 days, I have watched the world change around us, but my feelings for you have remained as steady as the northern star. You are the poetry I find in the middle of ordinary days. I hear your music in the soft cadence of your laugh—a sound that has the power to soothe my wildest storms.</p>
+            <p>Over these past 1,460 days, I have watched the world change around us, but my feelings for you have remained as steady as the northern star. You are the poetry I find in the middle of ordinary days. I hear your music in the soft cadence of your laugh—a sound that has the power to soothe my wildest storms.</p>
             
             <p>I do not want to live in the shadow of "what if" anymore. I want to build a bridge of words from my heart to yours. I want to hold your hand through the chapters we have yet to write.</p>
             
@@ -237,11 +219,11 @@
 
             <div class="buttons">
                 <button class="btn btn-yes" onclick="acceptProposal()">Yes, I will!</button>
-                <button class="btn btn-no" id="noBtn" onmouseover="moveNoButton()">No</button>
+                <button class="btn btn-no" id="noBtn" onmouseover="moveNoButton()" ontouchstart="moveNoButton()">No</button>
             </div>
         </div>
 
-        <!-- Step 3: Celebration Screen -->
+        <!-- Step 3: Success Screen -->
         <div class="success-screen" id="successScreen">
             <h2>❤️ Thank You! ❤️</h2>
             <p>You have made me the happiest person alive. Here's to our future together, cracking life's biggest equations side by side!</p>
@@ -250,23 +232,22 @@
 
     <script>
         function openLetter() {
-            const envelope = document.getElementById('envelopeWrapper');
-            const letter = document.getElementById('letterContainer');
-            const music = document.getElementById('bgMusic');
+            var box = document.getElementById('startBox');
+            var letter = document.getElementById('letterContainer');
+            var music = document.getElementById('bgMusic');
             
-            envelope.classList.add('open');
+            // Instantly hide the clickable box to stop conflicts
+            if(box) box.style.display = 'none';
             
-            // Play music on click to satisfy browser security rules
-            music.play().catch(error => console.log("Audio playback waiting for user action."));
+            // Reveal letter panel
+            if(letter) letter.style.display = 'block';
             
-            // Wait for envelope animation to finish before revealing letter
-            setTimeout(() => {
-                envelope.style.display = 'none';
-                letter.style.display = 'block';
-                setTimeout(() => {
-                    letter.classList.add('show');
-                }, 50);
-            }, 600);
+            // Fire up music track safely
+            if (music) {
+                music.play().catch(function(e) {
+                    console.log("Audio waiting for explicit touch permission.");
+                });
+            }
         }
 
         function acceptProposal() {
@@ -274,10 +255,18 @@
             document.getElementById('successScreen').style.display = 'block';
         }
 
-        // Fun interactive element: The "No" button runs away when hovered
+        // Runaway button code that works nicely on mobile screens too
         function moveNoButton() {
-            const btn = document.getElementById('noBtn');
-            const x = Math.random() * (window.innerWidth - btn.clientWidth - 40);
-            const y = Math.random() * (window.innerHeight - btn.clientHeight - 40);
+            var btn = document.getElementById('noBtn');
             
+            // Limit bounds to keep it visible but unclickable inside the page view
+            var x = Math.random() * (window.innerWidth - btn.clientWidth - 60);
+            var y = Math.random() * (window.innerHeight - btn.clientHeight - 60);
+            
+            btn.style.position = 'fixed';
+            btn.style.left = x + 'px';
+            btn.style.top = y + 'px';
         }
+    </script>
+</body>
+</html>
