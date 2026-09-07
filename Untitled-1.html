@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For My Northern Star</title>
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: #1a2333;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --accent: #ec4899;
+            --accent-hover: #db2777;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Georgia', serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+            padding: 20px;
+            background-image: 
+                radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 40px),
+                radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 30px),
+                radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 40px);
+            background-size: 550px 550px, 350px 350px, 250px 250px;
+            background-position: 0 0, 40px 60px, 130px 270px;
+        }
+
+        /* Envelope Container */
+        .envelope-wrapper {
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .envelope-wrapper:hover {
+            transform: scale(1.05);
+        }
+
+        .envelope {
+            position: relative;
+            width: 300px;
+            height: 200px;
+            background: #2e3b4e;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 0 0 10px 10px;
+        }
+
+        .envelope::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            width: 0;
+            height: 0;
+            border-left: 150px solid transparent;
+            border-right: 150px solid transparent;
+            border-top: 100px solid #3b4b61;
+            transform-origin: top;
+            transition: transform 0.4s ease 0.2s;
+            z-index: 3;
+        }
+
+        .envelope-text {
+            color: var(--text-main);
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+            z-index: 2;
+            text-align: center;
+        }
+
+        .heart-seal {
+            position: absolute;
+            font-size: 2rem;
+            color: var(--accent);
+            z-index: 4;
+            top: 40%;
+            transition: transform 0.3s ease;
+        }
+
+        /* Open State Animations */
+        .envelope-wrapper.open .envelope::before {
+            transform: rotateX(180deg);
+            z-index: 1;
+        }
+
+        .envelope-wrapper.open .heart-seal {
+            transform: scale(0);
+        }
+
+        /* Letter Styling */
+        .letter-container {
+            display: none;
+            max-width: 650px;
+            width: 100%;
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+            border: 1px solid rgba(236, 72, 153, 0.2);
+            opacity: 0;
+            transform: translateY(50px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .letter-container.show {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        h1 {
+            color: var(--accent);
+            font-size: 1.8rem;
+            margin-bottom: 25px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 10px;
+        }
+
+        p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 20px;
+            color: var(--text-main);
+            text-align: justify;
+        }
+
+        .highlight {
+            color: #60a5fa;
+            font-weight: bold;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 35px;
+        }
+
+        .btn {
+            padding: 12px 35px;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .btn-yes {
+            background-color: var(--accent);
+            color: white;
+            box-shadow: 0 4px 15px rgba(236, 72, 153, 0.4);
+        }
+
+        .btn-yes:hover {
+            background-color: var(--accent-hover);
+            transform: translateY(-2px);
+        }
+
+        .btn-no {
+            background-color: #374151;
+            color: var(--text-muted);
+            position: relative;
+        }
+
+        /* Success Screen */
+        .success-screen {
+            display: none;
+            text-align: center;
+        }
+
+        .success-screen h2 {
+            font-size: 2.5rem;
+            color: var(--accent);
+            margin-bottom: 15px;
+        }
+
+        /* Responsive Settings */
+        @media (max-width: 480px) {
+            .letter-container {
+                padding: 20px;
+            }
+            p {
+                font-size: 1rem;
+            }
+            .buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Background Music (Hidden) -->
+    <!-- Replace the URL inside src="" with your preferred song link if needed -->
+    <audio id="bgMusic" loop>
+        <source src="https://soundhelix.com" type="audio/mpeg">
+    </audio>
+
+    <!-- Step 1: The Interactive Envelope -->
+    <div class="envelope-wrapper" id="envelopeWrapper" onclick="openLetter()">
+        <div class="envelope">
+            <div class="envelope-text">Click to Open</div>
+            <div class="heart-seal">❤️</div>
+        </div>
+    </div>
+
+    <!-- Step 2: The Poetic Proposal Letter -->
+    <div class="letter-container" id="letterContainer">
+        <div id="proposalContent">
+            <h1>My Dearest Anshika,</h1>
+            
+            <p>For four years, my heart has kept a quiet rhythm, beating to the silent melody of my love for you. Today, I am finally letting that melody find its voice. I am stripping away the safety of silence because my feelings for you have grown too vast, too beautiful, to be contained any longer.</p>
+            
+            <p>When you first walked into my life thirty-eight months ago, I had no idea that you were the turning point of my entire story. I still remember the nights we spent talking about our futures, diving deep into conversations about <span class="highlight">IIT and JEE prep</span>. It was your passion, your drive, and the way your eyes lit up during those talks that truly inspired me. You didn't just share a dream with me; you ignited a spark that pushed me forward. Every long night of study and every difficult problem I faced was fueled by the thought of building a future worthy of you.</p>
+            
+            <p>Over these past 1,156 days, I have watched the world change around us, but my feelings for you have remained as steady as the northern star. You are the poetry I find in the middle of ordinary days. I hear your music in the soft cadence of your laugh—a sound that has the power to soothe my wildest storms.</p>
+            
+            <p>I do not want to live in the shadow of "what if" anymore. I want to build a bridge of words from my heart to yours. I want to hold your hand through the chapters we have yet to write.</p>
+            
+            <p>So, I offer you my heart, completely unguarded and entirely yours. Will you do me the ultimate honor of stepping into the future with me? Will you walk beside me, not just as a part of my life, but as my partner, my love, and my forever?</p>
+
+            <div class="buttons">
+                <button class="btn btn-yes" onclick="acceptProposal()">Yes, I will!</button>
+                <button class="btn btn-no" id="noBtn" onmouseover="moveNoButton()">No</button>
+            </div>
+        </div>
+
+        <!-- Step 3: Celebration Screen -->
+        <div class="success-screen" id="successScreen">
+            <h2>❤️ Thank You! ❤️</h2>
+            <p>You have made me the happiest person alive. Here's to our future together, cracking life's biggest equations side by side!</p>
+        </div>
+    </div>
+
+    <script>
+        function openLetter() {
+            const envelope = document.getElementById('envelopeWrapper');
+            const letter = document.getElementById('letterContainer');
+            const music = document.getElementById('bgMusic');
+            
+            envelope.classList.add('open');
+            
+            // Play music on click to satisfy browser security rules
+            music.play().catch(error => console.log("Audio playback waiting for user action."));
+            
+            // Wait for envelope animation to finish before revealing letter
+            setTimeout(() => {
+                envelope.style.display = 'none';
+                letter.style.display = 'block';
+                setTimeout(() => {
+                    letter.classList.add('show');
+                }, 50);
+            }, 600);
+        }
+
+        function acceptProposal() {
+            document.getElementById('proposalContent').style.display = 'none';
+            document.getElementById('successScreen').style.display = 'block';
+        }
+
+        // Fun interactive element: The "No" button runs away when hovered
+        function moveNoButton() {
+            const btn = document.getElementById('noBtn');
+            const x = Math.random() * (window.innerWidth - btn.clientWidth - 40);
+            const y = Math.random() * (window.innerHeight - btn.clientHeight - 40);
+            
+        }
